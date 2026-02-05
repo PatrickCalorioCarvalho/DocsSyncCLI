@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/PatrickCalorioCarvalho/DocsSyncCLI/config"
+	"github.com/PatrickCalorioCarvalho/DocsSyncCLI/sync"
 )
 
 var commitCmd = &cobra.Command{
@@ -55,7 +56,7 @@ var commitCmd = &cobra.Command{
 
 		if cfg.Sync.OpenWebUI.Enabled {
 			fmt.Println("🚀 Sincronizando com OpenWebUI...")
-			if err := commitOpenWebUI(cfg, precommitDir); err != nil {
+			if err := sync.SyncOpenWebUI(cfg, precommitDir); err != nil {
 				return err
 			}
 		}
@@ -75,10 +76,5 @@ func init() {
 
 func commitDocsaurus(cfg *config.Config, precommitDir string) error {
 	fmt.Println("   ↳ Docsaurus OK")
-	return nil
-}
-
-func commitOpenWebUI(cfg *config.Config, precommitDir string) error {
-	fmt.Println("   ↳ OpenWebUI OK")
 	return nil
 }

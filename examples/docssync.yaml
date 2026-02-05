@@ -26,5 +26,6 @@ sync:
     
   openwebui:
     enabled: true
-    ApiUrl: https://api.openwebui.com/ingest
-    ApiKey: your-openwebui-api-key
+    apiUrl: https://api.openwebui.com/ingest
+    apiKey: your-openwebui-api-key
+    knowledgeId : your-collection-name

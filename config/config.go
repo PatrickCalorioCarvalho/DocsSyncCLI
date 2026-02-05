@@ -38,4 +38,5 @@ type OpenWebUIConfig struct {
 	Enabled   bool   `yaml:"enabled"`
 	ApiUrl    string `yaml:"apiUrl"`
 	ApiKey	string `yaml:"apiKey"`
+	KnowledgeId string `yaml:"knowledgeId"`
 }
