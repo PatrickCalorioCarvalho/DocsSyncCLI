@@ -1,0 +1,30 @@
+project:
+  key: ProjectID
+
+scan:
+  root: .
+  include:
+    - "**/*.md"
+  exclude:
+    - "**/node_modules/**"
+    - "**/dist/**"
+    - "**/.git/**"
+    - "**/README.md"
+
+precommit:
+  baseDir: .precommit
+  stripDirs:
+    - Documentacao
+    - docs
+
+sync:
+  docsaurus:
+    enabled: true
+    gitlabRepo: your-gitlab-repo
+    gitlabToken: your-gitlab-token
+    gitlabBranch: main
+    
+  openwebui:
+    enabled: true
+    ApiUrl: https://api.openwebui.com/ingest
+    ApiKey: your-openwebui-api-key
