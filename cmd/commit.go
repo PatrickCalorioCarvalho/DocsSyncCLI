@@ -61,6 +61,13 @@ var commitCmd = &cobra.Command{
 			}
 		}
 
+		if cfg.Sync.Docsaurus.Enabled {
+			fmt.Println("🚀 Sincronizando com Docsaurus...")
+			if err := sync.SyncDocsaurus(cfg, precommitDir); err != nil {
+				return err
+			}
+		}
+
 		if err := os.RemoveAll(precommitDir); err != nil {
 			return fmt.Errorf("commit realizado, mas falhou ao remover precommit: %w", err)
 		}

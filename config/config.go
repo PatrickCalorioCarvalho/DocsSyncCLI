@@ -29,9 +29,9 @@ type SyncConfig struct {
 
 type DocsaurusConfig struct {
 	Enabled bool	 `yaml:"enabled"`
-	GitlabRepo string `yaml:"gitlabRepo"`
-	GitlabToken string `yaml:"gitlabToken"`
-	GitlabBranch string `yaml:"gitlabBranch"`
+	RepoUrl string `yaml:"repoUrl"`
+	RepoToken string `yaml:"repoToken"`
+	RepoBranch string `yaml:"repoBranch"`
 }
 
 type OpenWebUIConfig struct {

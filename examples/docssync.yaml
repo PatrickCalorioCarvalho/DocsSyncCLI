@@ -20,9 +20,9 @@ precommit:
 sync:
   docsaurus:
     enabled: true
-    gitlabRepo: your-gitlab-repo
-    gitlabToken: your-gitlab-token
-    gitlabBranch: main
+    repoUrl: your-repo
+    repoToken: your-token
+    repoBranch: main
     
   openwebui:
     enabled: true
