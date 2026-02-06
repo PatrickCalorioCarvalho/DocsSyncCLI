@@ -1,0 +1,78 @@
+name: Release on PR Merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: "1.21"
+
+    - name: Obter última tag
+      id: last_tag
+      run: |
+        git fetch --tags
+        LAST_TAG=$(git tag --sort=-v:refname | head -n 1)
+        echo "last_tag=${LAST_TAG:-v0.0.0}" >> $GITHUB_OUTPUT
+
+    - name: Calcular próxima versão (patch)
+      id: next_version
+      run: |
+        TAG=${{ steps.last_tag.outputs.last_tag }}
+        VERSION=${TAG#v}
+        IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+        PATCH=$((PATCH + 1))
+        NEW_TAG="v$MAJOR.$MINOR.$PATCH"
+        echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
+
+    - name: Criar tag
+      run: |
+        git tag ${{ steps.next_version.outputs.new_tag }}
+        git push origin ${{ steps.next_version.outputs.new_tag }}
+
+    - name: Build Linux
+      run: |
+        mkdir -p dist/linux
+        GOOS=linux GOARCH=amd64 go build -o dist/linux/docssync
+
+    - name: Build Windows
+      run: |
+        mkdir -p dist/windows
+        GOOS=windows GOARCH=amd64 go build -o dist/windows/docssync.exe
+
+    - name: Compactar binários
+      run: |
+        tar -czvf docssync-linux-amd64.tar.gz -C dist/linux docssync
+        zip -r docssync-windows-amd64.zip dist/windows
+
+    - name: Criar GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.next_version.outputs.new_tag }}
+        name: DocsSyncCLI ${{ steps.next_version.outputs.new_tag }}
+        body: |
+          🚀 Release automático gerado após merge de PR.
+
+          **Builds disponíveis:**
+          - Linux amd64
+          - Windows amd64
+        files: |
+          docssync-linux-amd64.tar.gz
+          docssync-windows-amd64.zip
