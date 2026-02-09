@@ -3,10 +3,10 @@ package sync
 import (
 	"bytes"
 	"fmt"
-	"os/exec"
-	"strings"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/PatrickCalorioCarvalho/DocsSyncCLI/config"
@@ -28,8 +28,12 @@ func SyncDocsaurus(cfg *config.Config, precommitDir string) error {
 	if err := ensureRepo(repoPath, d.RepoUrl, d.RepoBranch, d.RepoToken); err != nil {
 		return err
 	}
+	docsPath := d.DocsPath
+	if docsPath == "" {
+		docsPath = "docs"
+	}
 
-	docsProjectPath := filepath.Join(repoPath, "docs", projectKey)
+	docsProjectPath := filepath.Join(repoPath, docsPath, projectKey)
 
 	fmt.Println("🧹 Limpando docs/", projectKey)
 	_ = os.RemoveAll(docsProjectPath)
@@ -39,10 +43,10 @@ func SyncDocsaurus(cfg *config.Config, precommitDir string) error {
 		return err
 	}
 
-	if err := git(repoPath, "add", "docs/"+projectKey); err != nil {
+	if err := git(repoPath, "add", docsPath+"/"+projectKey); err != nil {
 		return err
 	}
-	
+
 	now := time.Now().Format("200601021504")
 	commitMsg := fmt.Sprintf("docsSync: %s %s", now, projectKey)
 
@@ -117,7 +121,7 @@ func injectToken(repo, token string) string {
 	if strings.Contains(repo, "https://") {
 		return strings.Replace(repo, "https://", "https://oauth2:"+token+"@", 1)
 	}
-	
+
 	if strings.Contains(repo, "http://") {
 		return strings.Replace(repo, "http://", "http://oauth2:"+token+"@", 1)
 	}

@@ -23,6 +23,7 @@ sync:
     repoUrl: your-repo
     repoToken: your-token
     repoBranch: main
+    docsPath: documentation/docs
     
   openwebui:
     enabled: true

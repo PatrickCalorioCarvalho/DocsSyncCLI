@@ -28,15 +28,16 @@ type SyncConfig struct {
 }
 
 type DocsaurusConfig struct {
-	Enabled bool	 `yaml:"enabled"`
-	RepoUrl string `yaml:"repoUrl"`
-	RepoToken string `yaml:"repoToken"`
+	Enabled    bool   `yaml:"enabled"`
+	RepoUrl    string `yaml:"repoUrl"`
+	RepoToken  string `yaml:"repoToken"`
 	RepoBranch string `yaml:"repoBranch"`
+	DocsPath   string `yaml:"docsPath"`
 }
 
 type OpenWebUIConfig struct {
-	Enabled   bool   `yaml:"enabled"`
-	ApiUrl    string `yaml:"apiUrl"`
-	ApiKey	string `yaml:"apiKey"`
+	Enabled     bool   `yaml:"enabled"`
+	ApiUrl      string `yaml:"apiUrl"`
+	ApiKey      string `yaml:"apiKey"`
 	KnowledgeId string `yaml:"knowledgeId"`
 }
