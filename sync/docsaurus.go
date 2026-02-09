@@ -28,6 +28,7 @@ func SyncDocsaurus(cfg *config.Config, precommitDir string) error {
 	if err := ensureRepo(repoPath, d.RepoUrl, d.RepoBranch, d.RepoToken); err != nil {
 		return err
 	}
+
 	docsPath := d.DocsPath
 	if docsPath == "" {
 		docsPath = "docs"
@@ -35,7 +36,7 @@ func SyncDocsaurus(cfg *config.Config, precommitDir string) error {
 
 	docsProjectPath := filepath.Join(repoPath, docsPath, projectKey)
 
-	fmt.Println("🧹 Limpando docs/", projectKey)
+	fmt.Println("🧹 Limpando " + docsPath + "/" + projectKey)
 	_ = os.RemoveAll(docsProjectPath)
 
 	fmt.Println("📂 Copiando precommit → docsaurus")
