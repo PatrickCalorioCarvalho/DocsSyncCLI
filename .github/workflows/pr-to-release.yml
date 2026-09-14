@@ -47,6 +47,11 @@ jobs:
         git tag ${{ steps.next_version.outputs.new_tag }}
         git push origin ${{ steps.next_version.outputs.new_tag }}
 
+    - name: Atualizar tag flutuante v0
+      run: |
+        git tag -f v0
+        git push origin v0 --force
+
     - name: Build Linux
       run: |
         mkdir -p dist/linux
