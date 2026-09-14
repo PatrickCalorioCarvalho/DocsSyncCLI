@@ -29,6 +29,10 @@ func SyncDocsaurus(cfg *config.Config, precommitDir string) error {
 		return err
 	}
 
+	if err := ensureGitIdentity(repoPath); err != nil {
+		return err
+	}
+
 	docsPath := d.DocsPath
 	if docsPath == "" {
 		docsPath = "docs"
@@ -111,6 +115,13 @@ func ensureRepo(path, repo, branch, token string) error {
 	}
 
 	return nil
+}
+
+func ensureGitIdentity(repoPath string) error {
+	if err := git(repoPath, "config", "user.name", "DocsSync Bot"); err != nil {
+		return err
+	}
+	return git(repoPath, "config", "user.email", "docssync@users.noreply.github.com")
 }
 
 func injectToken(repo, token string) string {
