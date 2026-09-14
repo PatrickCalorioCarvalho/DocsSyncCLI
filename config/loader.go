@@ -20,6 +20,8 @@ func LoadConfig(projectRoot string) (*Config, error) {
 		return nil, err
 	}
 
+	data = []byte(os.Expand(string(data), os.Getenv))
+
 	var cfg Config
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
 		return nil, err

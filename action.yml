@@ -1,0 +1,33 @@
+name: 'DocsSync'
+description: 'Sincroniza documentação Markdown com Docsaurus e/ou OpenWebUI'
+author: 'PatrickCalorioCarvalho'
+branding:
+  icon: 'book-open'
+  color: 'blue'
+
+inputs:
+  path:
+    description: 'Pasta raiz do projeto (onde está o docssync.yaml)'
+    required: false
+    default: '.'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Instalar docssync
+      shell: bash
+      run: |
+        set -euo pipefail
+        curl -sSL -o "$RUNNER_TEMP/docssync.tar.gz" \
+          "https://github.com/PatrickCalorioCarvalho/DocsSyncCLI/releases/download/${{ github.action_ref }}/docssync-linux-amd64.tar.gz"
+        tar -xzf "$RUNNER_TEMP/docssync.tar.gz" -C "$RUNNER_TEMP"
+        chmod +x "$RUNNER_TEMP/docssync"
+        echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+
+    - name: docssync precommit
+      shell: bash
+      run: docssync precommit -p "${{ inputs.path }}"
+
+    - name: docssync commit
+      shell: bash
+      run: docssync commit -p "${{ inputs.path }}"

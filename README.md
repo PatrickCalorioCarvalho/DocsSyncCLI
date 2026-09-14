@@ -30,7 +30,7 @@ O **DocsSyncCLI** resolve isso aplicando o conceito de:
 -   Sincronizar automaticamente com um repositório central Docsaurus
 -   Permitir integração futura com base de conhecimento (OpenWebUI)
 -   Funcionar com GitHub ou GitLab (via git CLI)
--   Ser executável localmente ou em CI/CD
+-   Ser executável localmente ou em CI/CD (inclusive como GitHub Action)
 
 ------------------------------------------------------------------------
 
@@ -43,9 +43,24 @@ Projeto │ ├── Markdown espalhado │ └── DocsSyncCLI │ ├──
 
 ------------------------------------------------------------------------
 
+## ⚙️ Instalação local
+
+Baixe o binário na [página de releases](https://github.com/PatrickCalorioCarvalho/DocsSyncCLI/releases)
+ou instale via Go:
+
+```bash
+go install github.com/PatrickCalorioCarvalho/DocsSyncCLI@latest
+```
+
 ## ⚙️ Configuração
 
-Arquivo `docssync.yaml`:
+Gere um `docssync.yaml` modelo com:
+
+```bash
+docssync init
+```
+
+Ou crie manualmente na raiz do projeto:
 
 ``` yaml
 project:
@@ -70,11 +85,21 @@ precommit:
 sync:
   docsaurus:
     enabled: true
-    repoUrl: https://gitlab.com/org/docsaurus.git
-    repoToken: your-token
+    repoUrl: https://github.com/sua-org/seu-docsaurus.git
+    repoToken: ${DOCS_REPO_TOKEN}
     repoBranch: main
     docsPath: documentation/docs
+
+  openwebui:
+    enabled: false
+    apiUrl: https://api.openwebui.com/ingest
+    apiKey: ${OPENWEBUI_API_KEY}
+    knowledgeId: your-collection-name
 ```
+
+Qualquer campo pode referenciar uma variável de ambiente com `${NOME_DA_VAR}` —
+útil para não versionar tokens/chaves em texto puro. O valor é expandido a partir
+do ambiente do processo no momento em que o `docssync.yaml` é lido.
 
 ------------------------------------------------------------------------
 
@@ -123,8 +148,10 @@ docsSync: `<token>`{=html} `<ProjectKey>`{=html} 202602052022
 
 -   Autenticação via Personal Access Token
 -   Compatível com:
-    -   GitHub
-    -   GitLab
+    -   GitHub (token direto na URL: `https://<token>@github.com/...`)
+    -   GitLab (formato `oauth2:<token>@...`)
+-   Suporte a `${VAR}` no `docssync.yaml` para injetar tokens via variável de
+    ambiente/secret de CI, em vez de texto puro no arquivo
 -   Não depende de API REST específica
 -   Usa git CLI (mais robusto e universal)
 
@@ -132,8 +159,8 @@ docsSync: `<token>`{=html} `<ProjectKey>`{=html} 202602052022
 
 ## 🏗️ Estrutura do Projeto
 
-DocsSyncCLI/ ├── config/ ├── sync/ │ ├── docsaurus.go │ └── git.go ├──
-cmd/ └── main.go
+DocsSyncCLI/ ├── config/ ├── scanner/ ├── sync/ │ ├── docsaurus.go │ └──
+openwebui.go ├── cmd/ └── main.go
 
 ------------------------------------------------------------------------
 
@@ -141,11 +168,50 @@ cmd/ └── main.go
 
 ### Rodar manualmente
 
+```bash
+go run . init --path .
+go run . precommit --path .
 go run . commit --path .
+```
 
 ### Build binário
 
-go build -o docssync ./docssync commit --path .
+```bash
+go build -o docssync .
+./docssync commit --path .
+```
+
+------------------------------------------------------------------------
+
+## 🤖 Uso como GitHub Action
+
+```yaml
+name: Sync docs
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  docssync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: PatrickCalorioCarvalho/DocsSyncCLI@v0
+        env:
+          DOCS_REPO_TOKEN: ${{ secrets.DOCS_REPO_TOKEN }}
+        with:
+          path: .
+```
+
+O único input é `path` (padrão `.`), a pasta onde está o `docssync.yaml` do
+repositório. Quaisquer secrets referenciados no `docssync.yaml` via `${VAR}`
+devem ser expostos ao step via `env:`.
+
+**Limitações da versão atual:** só há binário publicado para Linux e Windows
+(amd64); a Action usa o binário Linux e portanto só roda em runners `ubuntu-*`.
+Ela também espera que o `actions/checkout` já tenha rodado antes dela no job.
 
 ------------------------------------------------------------------------
 
@@ -153,7 +219,7 @@ go build -o docssync ./docssync commit --path .
 
 -   Windows
 -   Linux
--   macOS
+-   macOS (CLI local; ainda sem binário de release nem suporte na Action)
 -   GitHub
 -   GitLab
 -   Execução local ou CI/CD
@@ -176,7 +242,8 @@ go build -o docssync ./docssync commit --path .
 -   Integração com OpenWebUI (RAG)
 -   Validação de documentação (modo strict)
 -   Lint para imagens sem descrição
--   Execução oficial como GitHub Action
+-   Publicação da Action no GitHub Marketplace
+-   Build de binário macOS/arm64
 -   Docker execution mode
 -   Sincronização automática de base de conhecimento
 
